@@ -15,15 +15,15 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->bigInteger('dtype_id')->unsigned();
-            $table->string('address')->default('');
-            $table->string('city', 100)->default('');
-            $table->string('state', 100)->default('');
-            $table->string('country',50)->default('');
+            $table->string('address')->nullable();
+            $table->string('city', 100)->nullable();
+            $table->string('state', 100)->nullable();
+            $table->string('country',50)->nullable();
             $table->string('zipcode',20)->nullable();            
-            $table->text('description')->default('');
-            $table->text('details')->default('');
-            $table->text('payment_modes')->default('');
-            $table->text('amenities_ext')->default('');
+            $table->text('description')->nullable();
+            $table->text('details')->nullable();
+            $table->text('payment_modes')->nullable();
+            $table->text('amenities_ext')->nullable();
             $table->string('status');
             $table->timestamps();
 
