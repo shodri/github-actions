@@ -1,0 +1,392 @@
+@extends('admin.layout')
+
+@section('styles')
+@parent
+<link href="/assets/css/croppie.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css"> 
+<style>
+.iti {
+  width: 100%;
+  display: block;
+}    
+
+label.cabinet{
+    display: block;
+	cursor: pointer;
+}
+
+label.cabinet input.file{
+    position: relative;
+	height: 100%;
+	width: auto;
+	opacity: 0;
+	-moz-opacity: 0;
+    filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0);
+    margin-top:-30px;
+}
+
+label.cabinet figure {
+  border: thin #c0c0c0 solid;
+  display: flex;
+  flex-flow: column;
+  padding: 5px;
+  # max-width: 150px;
+  # max-height: 125px;
+  margin: auto;
+}
+
+label.cabinet img {
+  background-color: lightgrey;
+  width: 100%;
+  #height: 83%;
+}
+
+
+</style>   
+@endsection
+
+@section('content')
+<div class="d-flex justify-content-between mb-3">
+        <h2 class="brand-text text-primary ms-1"><b>{{$title}}</b></h2>
+        <a href="{{route('admin.developers.index')}}" class="btn btn-primary">Volver</a>
+</div>
+
+@if($errors->any())
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {!! implode('', $errors->all('<div>:message</div>')) !!}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>			
+@elseif(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{session('success')}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>			
+@endif	
+
+<form method="post" role="form" action="{{$action}}" enctype="multipart/form-data">
+    @csrf
+    @if($developer->id)
+    @method('PATCH')
+    @endif
+
+
+    <div class="mt-3">
+
+        <div class="row">
+            <div class="col-lg-3 col-sm-12 mb-3">
+                <label for="name" class="form-label">{{__('NOMBRE DE LA EMPRESA')}}</label>
+                <input type="text" id="name" name="name" class="form-control form-control-sm @error('name') is_invalid @enderror" value="{{ old('name', $developer->name) }}" aria-describedby="describeNameField" required>
+                <div id="describeNameField" class="form-text">* Que aparecerá en el Perfil</div>
+            </div>
+
+            <div class="col-lg-3 col-sm-12 mb-3">
+                <label for="status" class="form-label">{{__('ESTADO')}}</label>
+                <select id="status" name="status" class="form-select form-select-sm @error('status') is-invalid @enderror" value="{{ old('status', $developer->status) }}" aria-describedby="describestatusField" required>
+                    <option value="enabled" {{ (old('status', $developer->status) == 'enabled') ? "selected" : "" }}>Enabled</option>
+                    <option value="disabled" {{ (old('status', $developer->status) == 'disabled') ? "selected" : "" }}>Disabled</option>
+                </select>
+            </div>
+
+        </div>
+            
+        <div class="row">
+            <div class="col-lg-3 col-sm-12 mb-3">
+                <label for="address" class="form-label">{{__('DIRECCIÓN')}}</label>
+                <input type="text" id="address" name="address" class="form-control form-control-sm @error('address') is_invalid @enderror" value="{{ old('address', $developer->address) }}" aria-describedby="describeAddressField" required>
+                <div id="describeAddressField" class="form-text">* Que aparecerá en el Perfil</div>
+            </div>
+            
+            <div class="col-lg-3 col-sm-12 mb-3">
+                <label for="city" class="form-label">{{__('CIUDAD')}}</label>
+                <input type="text" id="city" name="city" class="form-control form-control-sm @error('city') is_invalid @enderror" value="{{ old('city', $developer->city) }}" aria-describedby="describeCityField" required>
+                <div id="describeCityField" class="form-text">* {{__('Que aparecerá en el Perfil')}}</div>
+            </div>
+
+            <div class="col-lg-3 col-sm-12 mb-3">
+                <label for="state" class="form-label">{{__('ESTADO / PCIA')}}</label>
+                <input type="text" id="state" name="state" class="form-control form-control-sm @error('state') is_invalid @enderror" value="{{ old('state', $developer->state) }}" aria-describedby="describeStateField" required>
+                <div id="describeStateField" class="form-text">* {{__('Que aparecerá en el Perfil')}}</div>
+            </div>
+            
+            <div class="col-lg-3 col-sm-12 mb-3">
+                <label for="country" class="form-label">{{__('PAÍS')}}</label>
+                <select id="country" name="country" class="form-select form-select-sm @error('country') is-invalid @enderror" value="{{ old('country', $developer->country) }}" aria-describedby="describeCountryField" required>
+                    <option>{{__('Seleccioná')}}</option>
+                    @foreach($countries as $country)
+                        <option value="{{$country->id}}" {{ (old('country', $developer->country) == $country->id) ? "selected" : "" }}><i class="flag flag-us"></i> {{$country->name}}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+            
+        <div class="row">
+            <div class="col-lg-3 col-sm-12 mb-3">
+                <label for="email" class="form-label">{{__('E-MAIL')}}</label>
+                <input type="email" id="email" name="email" class="form-control form-control-sm @error('email') is-invalid @enderror" value="{{ old('email', $developer->email) }}" aria-describedby="describeEmailField">
+                <div id="describeEmailField" class="form-text">* {{__('Que aparecerá en el Perfil')}}</div>
+            </div>
+
+            <div class="col-lg-3 col-sm-12 mb-3">
+                <label for="phone" class="form-label">{{__('TELÉFONO')}}</label>
+                <div class='input-group'>
+                    <input type="tel" id='phone' name='phone' class="form-control form-control-sm @error('phone') is-invalid @enderror" value="{{ old('phone', $developer->phone) }}" aria-describedby="describePhoneField">
+                </div>
+                <div id="describePhoneField" class="form-text">* {{__('Que aparecerá en el Perfil')}}</div>
+            </div>
+            
+            <div class="col-lg-3 col-sm-12 mb-3">
+                <label for="whatsapp" class="form-label">{{__('WHATSAPP')}}</label>
+                <div class='input-group'>
+                    <input type="tel" id='whatsapp' name='whatsapp' class="form-control form-control-sm @error('whatsapp') is-invalid @enderror" value="{{ old('whatsapp', $developer->whatsapp) }}" aria-describedby="describeWhatsappField">
+                </div>
+                <div id="describeWhatsappField" class="form-text">* {{__('Que aparecerá en el Perfil')}}</div>
+            </div>
+
+            <div class="col-lg-3 col-sm-12 mb-3">
+                <label for="zipcode" class="form-label">{{__('CÓD. POSTAL')}}</label>
+                <div class="input-group">
+                    <input type="text" id='zipcode' name='zipcode' class="form-control form-control-sm @error('zipcode') is-invalid @enderror" value="{{ old('zipcode', $developer->zipcode) }}" aria-label="" aria-describedby="describeZipcodeField">
+                    <a class="btn btn-sm btn-outline-secondary" href="https://www.google.com/maps" target="_blank" id="validateOnMap"><i class="bi bi-geo-alt me-2"></i>{{__('Validar en mapa')}}</a>
+                </div>
+                <div id="describeZipcodeField" class="form-text">* {{__('Que aparecerá en la publicación')}}</div>
+            </div>
+        </div>
+
+        <div class='row'>
+            <div class="col-lg-12 col-sm-12 mb-3">
+                <label for="short_description" class="form-label">{{__('DESCRIPCIÓN CORTA DE LA EMPRESA')}}</label>
+                <textarea id="short_description" name="short_description" class="form-control form-control-sm @error('short_description') is-invalid @enderror" rows="3" aria-describedby="describeshort_descriptionField">{{ old('short_description', $developer->short_description) }}</textarea>
+                <div id="describeshort_descriptionField" class="form-text">* {{__('Que se publicará en el Perfil')}}</div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-12 col-sm-12 mb-3">
+                <label for="long_description" class="form-label">{{__('DESCRIPCIÓN LARGA DE LA EMPRESA')}}</label>
+                <textarea id="long_description" name="long_description" class="form-control form-control-sm @error('long_description') is-invalid @enderror" rows="3" aria-describedby="describeLongDescriptionField">{{ old('long_description', $developer->long_description) }}</textarea>
+                <div id="describeLongDescriptionField" class="form-text">* {{__('Que se publicará en el Perfil')}}</div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8 col-sm-12">
+                <div class="row">
+                    <div class="col-lg-6 col-sm-12 mb-3">
+                        <label for="url" class="form-label">{{__('SITIO WEB')}}</label>
+                        <input type="text" id="url" name="url" class="form-control form-control-sm @error('url') is-invalid @enderror" value="{{ old('url', $developer->url) }}" aria-describedby="describeUrlField">
+                        <div id="describeUrlField" class="form-text">* {{__('Que se publicará en el Perfil')}}</div>
+                    </div>
+                    
+                    <div class="col-lg-6 col-sm-12 mb-3">
+                        <label for="brochure" class="form-label">BROCHURE (PDF)</label>
+                        @if($developer->brochure)
+                        <div class="btn-group d-flex" role="group">
+                            <a class='btn btn-outline-secondary btn-sm w-100' href='{{Storage::url($developer->brochure->path)}}' target='_blank'><i class='bi bi-download'> {{__('Descargar')}}</i></a>
+                            <button class="btn btn-sm btn-danger" type="button" id="deleteBrochure"><i class='bi bi-trash'></i></button>
+                        </div>
+                        @else
+                        <div class="input-group"> 
+                            <input type="file" name="brochure" id="brochure" class="form-control form-control-sm" aria-describedby="describeBrochureField">
+                        </div>
+                        <div id="describeBrochureField" class="form-text">* {{__('Que se publicará en el Perfil')}}</div>
+                        @endif
+                    </div>
+                </div>  
+                
+                <div class="row">
+                    <div class="col-lg-6 col-sm-12 mb-3">
+                        <label for="specialties" class="form-label">{{__('ESPECIALIDADES')}}</label>
+        
+                        <div id="specialities"  aria-describedby="describeSpecialtiesField">
+                            @foreach($specialities as $speciality)
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="speciality[]" value="{{$speciality}}" id="speciality{{$loop->iteration}}" {{ $developer->speciality && in_array($speciality, old('speciality', $developer->speciality)) ? "checked" : "" }}>
+                                <label class="form-check-label" for="speciality{{$loop->iteration}}">
+                                {{$speciality}}
+                                </label>
+                            </div>
+                            @endforeach
+                        </div>
+        
+                        <div id="describeSpecialtiesField" class="form-text">* {{__('Tipos de construcciones que realizas')}}</div>
+                    </div>
+                    
+                    <div class="col-lg-6 col-sm-12 mb-3">
+                        <label for="social_networks" class="form-label">{{__('REDES SOCIALES')}}</label>
+                        <textarea id="social_networks" name="social_networks" class="form-control form-control-sm @error('social_networks') is-invalid @enderror" rows="3" aria-describedby="describeSocialNetworksField">{{ old('social_networks', $developer->social_networks) }}</textarea>
+                        <div id="describeSocialNetworksField" class="form-text">* {{__('Que se publicará en el Perfil')}}</div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="col-lg-2 col-sm-12">
+                <label for="pictureFile" class="form-label">{{__('LOGO')}}</label>
+                <label class="cabinet">
+                    <figure>
+                        <img src="{{$developer->image ? Storage::url($developer->image) : 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA='}}" class="img-responsive img-thumbnail" id="picture-image" data-src="{{$developer->image}}" />
+                        <figcaption>
+                            <div class="d-flex justify-content-between">
+                                <i class="bi bi-camera"></i>
+                                <a id="pictureDelete"><i class="bi bi-trash"></i></a>
+                            </div>
+                        </figcaption>
+                    </figure> 
+                    <input type="file" class="item-img file center-block" id="pictureFile" accept="image/*"/>
+                    <input type="hidden" name="picture" id="picture"/>
+                    <input type="hidden" name="picture_old" value="{{$developer->image}}"/>
+                </label> 
+
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-md btn-primary mt-2"><i class="bi bi-check-lg ms-1 me-2"></i> {{__('Grabar Cambios')}} </button>
+</form>                
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="imageModalLabel">{{__('Ajustar la imágen')}}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="image_crop" style="width:390px;height:325px;padding-bottom:25px;"></div>
+
+        <img id="image" src="https://avatars0.githubusercontent.com/u/3456749">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{__('Cancelar')}}</button>
+        <button type="button" class="btn btn-primary btn-crop_image">{{__('Aceptar')}}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@endsection
+
+@section('scripts')
+<script src="/assets/js/croppie.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
+<script>
+    const inputPhone = document.querySelector("#phone");
+    const inputWhatsapp = document.querySelector("#whatsapp");
+
+    window.intlTelInput(inputPhone, {
+        initialCountry: "auto",
+        geoIpLookup: callback => {
+            fetch("https://ipapi.co/json")
+            .then(res => res.json())
+            .then(data => callback(data.country_code))
+            .catch(() => callback("ar"));
+        },
+        //utilsScript: "/intl-tel-input/js/utils.js?1695806485509" // just for formatting/placeholders etc
+    });
+    window.intlTelInput(inputWhatsapp, {
+        initialCountry: "auto",
+        geoIpLookup: callback => {
+            fetch("https://ipapi.co/json")
+            .then(res => res.json())
+            .then(data => callback(data.country_code))
+            .catch(() => callback("ar"));
+        },
+        //utilsScript: "/intl-tel-input/js/utils.js?1695806485509"
+    });
+
+    @if($developer->id)
+    $('button#deleteBrochure').on('click',function(e) {
+        $.confirm({
+            title: 'Confirmar',
+            content: '{{__('Seguro que desea borrar el brochure?')}}',
+            type: 'red',
+            closeIcon: true,
+            buttons: {
+                cancelar: {
+                    btnClass: 'btn-danger',
+                },
+                confirmar: {
+                    btnClass: 'btn-primary',
+                    action: function () {
+                        $('<form/>', {id: 'hiddenForm', method: 'post', action: '{{route('admin.developers.brochure.delete',$developer->id)}}'})
+                            .append('@csrf')
+                            .append('@method('DELETE')')
+                            .appendTo('body')
+                            .submit();
+                    },
+                },
+            }
+        });
+    });
+    @endif
+
+    $image_crop = $("#image_crop").croppie({
+        enableExif: true,
+        enforceBoundary: false,
+        viewport: {
+            width:300,
+            height:250,
+            type:'square', //circle
+        },
+    });
+
+    $('input#pictureFile').on('change', function(e) {
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            $image_crop.croppie('bind', {
+                url: event.target.result
+            }).then(function() {
+                $('input#pictureFile').val('');
+            });
+        }
+        reader.readAsDataURL(this.files[0]);
+        $("div.modal#imageModal").modal('show');
+    });
+
+    $('.btn-crop_image').click(function(event) {
+        $image_crop.croppie('result', {
+            type: 'canvas',
+            size: 'viewport',
+        }).then(function(response) {
+            $('#picture-image').attr('src', response);
+            $('#picture').attr('value', response);
+
+            $("div.modal#imageModal").modal('hide');
+        });
+    });
+
+    $('#pictureDelete').on('click', function(e) {
+        e.preventDefault();
+        var original=$('#picture-image').attr('data-src');
+        if(original == "") {
+            $('#picture-image').attr('src', 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=');
+            $('#picture').attr('value', 'delete');
+        } else {
+            $.confirm({
+                title: 'Confirmar',
+                content: '{{__('Seguro que desea quitar esta imágen?')}}',
+                type: 'red',
+                closeIcon: true,
+                buttons: {
+                    cancelar: {
+                        btnClass: 'btn-danger',
+                    },
+                    confirmar: {
+                        btnClass: 'btn-primary',
+                        action: function () {
+                            $('#picture-image')
+                                .attr('src', 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=')
+                                .attr('data-src', "");
+                            $('#picture').attr('value', 'delete,'+original);
+                        },
+                    },
+                }
+            });
+        }
+    });
+
+</script>
+@endsection

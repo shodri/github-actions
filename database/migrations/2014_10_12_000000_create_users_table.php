@@ -17,6 +17,14 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('whatsapp',25)->default('');
+            $table->date('birthdate')->nullable();
+            $table->string('language',5)->nullable();
+            $table->string('company')->default('');
+            $table->string('country',2)->nullable();
+            $table->string('state')->default('');
+            $table->string('city')->default('');
+            $table->string('picture')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
