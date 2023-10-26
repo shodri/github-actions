@@ -35,6 +35,3 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/onpropify:latest
-      - name: Execute PHPUnit tests
-        run: |
-          php artisan migrate:fresh --seed
