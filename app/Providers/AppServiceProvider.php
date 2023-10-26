@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         if (!app()->runningInConsole()) {
-            View::share('dclasses', Dclass::all());
+            //View::share('dclasses', Dclass::all());
             View::share('languages', Language::enabled());
         }
 
